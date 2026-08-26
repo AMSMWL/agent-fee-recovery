@@ -14,7 +14,113 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      fmls_credits: {
+        Row: {
+          created_at: string
+          credit_amount: number
+          entered_by: string | null
+          fmls_number: string
+          id: string
+          invoice_month: string | null
+          matched_request_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          credit_amount: number
+          entered_by?: string | null
+          fmls_number: string
+          id?: string
+          invoice_month?: string | null
+          matched_request_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          credit_amount?: number
+          entered_by?: string | null
+          fmls_number?: string
+          id?: string
+          invoice_month?: string | null
+          matched_request_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fmls_credits_matched_request_id_fkey"
+            columns: ["matched_request_id"]
+            isOneToOne: false
+            referencedRelation: "refund_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      refund_requests: {
+        Row: {
+          agent_email: string | null
+          agent_fmls_id: string | null
+          agent_name: string
+          broker_email: string | null
+          broker_name: string
+          closing_date: string | null
+          created_at: string
+          credit_amount: number | null
+          credit_entered_at: string | null
+          credit_entered_by: string | null
+          fee_amount: number
+          fmls_number: string
+          id: string
+          notes: string | null
+          processed_at: string | null
+          processed_by: string | null
+          processed_note: string | null
+          property_address: string | null
+          status: Database["public"]["Enums"]["refund_status"]
+          updated_at: string
+        }
+        Insert: {
+          agent_email?: string | null
+          agent_fmls_id?: string | null
+          agent_name: string
+          broker_email?: string | null
+          broker_name: string
+          closing_date?: string | null
+          created_at?: string
+          credit_amount?: number | null
+          credit_entered_at?: string | null
+          credit_entered_by?: string | null
+          fee_amount?: number
+          fmls_number: string
+          id?: string
+          notes?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          processed_note?: string | null
+          property_address?: string | null
+          status?: Database["public"]["Enums"]["refund_status"]
+          updated_at?: string
+        }
+        Update: {
+          agent_email?: string | null
+          agent_fmls_id?: string | null
+          agent_name?: string
+          broker_email?: string | null
+          broker_name?: string
+          closing_date?: string | null
+          created_at?: string
+          credit_amount?: number | null
+          credit_entered_at?: string | null
+          credit_entered_by?: string | null
+          fee_amount?: number
+          fmls_number?: string
+          id?: string
+          notes?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          processed_note?: string | null
+          property_address?: string | null
+          status?: Database["public"]["Enums"]["refund_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +129,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      refund_status: "pending" | "approved" | "processed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +256,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      refund_status: ["pending", "approved", "processed"],
+    },
   },
 } as const
