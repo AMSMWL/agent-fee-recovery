@@ -41,7 +41,7 @@ function AuthenticatedLayout() {
               size="sm"
               onClick={async () => {
                 await supabase.auth.signOut();
-                router.navigate({ to: "/auth" });
+                router.navigate({ to: "/auth", search: { redirect: undefined } });
               }}
             >
               Sign out
