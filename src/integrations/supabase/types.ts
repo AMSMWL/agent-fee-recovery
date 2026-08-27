@@ -58,21 +58,28 @@ export type Database = {
           agent_fmls_id: string | null
           agent_name: string
           broker_email: string | null
-          broker_name: string
+          broker_name: string | null
           closing_date: string | null
           created_at: string
           credit_amount: number | null
           credit_entered_at: string | null
           credit_entered_by: string | null
-          fee_amount: number
+          fee_amount: number | null
           fmls_number: string
           id: string
           notes: string | null
+          prior_waiver: boolean
+          prior_waiver_date: string | null
+          prior_waiver_details: string | null
           processed_at: string | null
           processed_by: string | null
           processed_note: string | null
           property_address: string | null
           status: Database["public"]["Enums"]["refund_status"]
+          submission_date: string | null
+          transaction_type:
+            | Database["public"]["Enums"]["transaction_type"]
+            | null
           updated_at: string
         }
         Insert: {
@@ -80,21 +87,28 @@ export type Database = {
           agent_fmls_id?: string | null
           agent_name: string
           broker_email?: string | null
-          broker_name: string
+          broker_name?: string | null
           closing_date?: string | null
           created_at?: string
           credit_amount?: number | null
           credit_entered_at?: string | null
           credit_entered_by?: string | null
-          fee_amount?: number
+          fee_amount?: number | null
           fmls_number: string
           id?: string
           notes?: string | null
+          prior_waiver?: boolean
+          prior_waiver_date?: string | null
+          prior_waiver_details?: string | null
           processed_at?: string | null
           processed_by?: string | null
           processed_note?: string | null
           property_address?: string | null
           status?: Database["public"]["Enums"]["refund_status"]
+          submission_date?: string | null
+          transaction_type?:
+            | Database["public"]["Enums"]["transaction_type"]
+            | null
           updated_at?: string
         }
         Update: {
@@ -102,21 +116,28 @@ export type Database = {
           agent_fmls_id?: string | null
           agent_name?: string
           broker_email?: string | null
-          broker_name?: string
+          broker_name?: string | null
           closing_date?: string | null
           created_at?: string
           credit_amount?: number | null
           credit_entered_at?: string | null
           credit_entered_by?: string | null
-          fee_amount?: number
+          fee_amount?: number | null
           fmls_number?: string
           id?: string
           notes?: string | null
+          prior_waiver?: boolean
+          prior_waiver_date?: string | null
+          prior_waiver_details?: string | null
           processed_at?: string | null
           processed_by?: string | null
           processed_note?: string | null
           property_address?: string | null
           status?: Database["public"]["Enums"]["refund_status"]
+          submission_date?: string | null
+          transaction_type?:
+            | Database["public"]["Enums"]["transaction_type"]
+            | null
           updated_at?: string
         }
         Relationships: []
@@ -130,6 +151,7 @@ export type Database = {
     }
     Enums: {
       refund_status: "pending" | "approved" | "processed"
+      transaction_type: "personal_home_purchase" | "personal_home_sale"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -258,6 +280,7 @@ export const Constants = {
   public: {
     Enums: {
       refund_status: ["pending", "approved", "processed"],
+      transaction_type: ["personal_home_purchase", "personal_home_sale"],
     },
   },
 } as const
