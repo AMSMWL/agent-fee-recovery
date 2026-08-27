@@ -176,11 +176,11 @@ function RequestTable({
           <thead className="bg-secondary text-left text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="px-5 py-3 font-semibold">Submitted</th>
-              <th className="px-5 py-3 font-semibold">Broker</th>
               <th className="px-5 py-3 font-semibold">Agent</th>
+              <th className="px-5 py-3 font-semibold">Type</th>
               <th className="px-5 py-3 font-semibold">FMLS #</th>
               <th className="px-5 py-3 font-semibold">Property</th>
-              <th className="px-5 py-3 text-right font-semibold">Fee</th>
+              <th className="px-5 py-3 font-semibold">Prior waiver</th>
               {showCredit ? <th className="px-5 py-3 text-right font-semibold">FMLS credit</th> : null}
               {showProcessed ? <th className="px-5 py-3 font-semibold">Processed</th> : null}
               <th className="px-5 py-3 font-semibold">Status</th>
