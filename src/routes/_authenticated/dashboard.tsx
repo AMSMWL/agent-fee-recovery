@@ -53,7 +53,7 @@ function Dashboard() {
   }, [requests, search]);
 
   const byStatus = (status: RefundRequest["status"]) => filtered.filter((r) => r.status === status);
-  const total = (rows: RefundRequest[], key: "fee_amount" | "credit_amount") =>
+  const total = (rows: RefundRequest[], key: "credit_amount") =>
     rows.reduce((sum, r) => sum + Number(r[key] ?? 0), 0);
 
   const pending = byStatus("pending");
@@ -63,14 +63,14 @@ function Dashboard() {
   return (
     <div className="space-y-8">
       <div className="grid gap-4 sm:grid-cols-3">
-        <Stat label="Pending submissions" value={String(pending.length)} sub={`${currency(total(pending, "fee_amount"))} in fees`} />
+        <Stat label="Pending submissions" value={String(pending.length)} sub="Awaiting FMLS credit" />
         <Stat
           label="Approved — ready to refund"
           value={String(approved.length)}
           sub={`${currency(total(approved, "credit_amount"))} credited by FMLS`}
           highlight
         />
-        <Stat label="Processed" value={String(processed.length)} sub={`${currency(total(processed, "fee_amount"))} refunded`} />
+        <Stat label="Processed" value={String(processed.length)} sub={`${currency(total(processed, "credit_amount"))} refunded`} />
       </div>
 
       <Tabs defaultValue="pending">
