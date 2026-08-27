@@ -46,7 +46,7 @@ function Dashboard() {
     const q = search.trim().toLowerCase();
     if (!q) return requests;
     return requests.filter((r) =>
-      [r.broker_name, r.agent_name, r.fmls_number, r.property_address ?? ""].some((v) =>
+      [r.agent_name, r.fmls_number, r.property_address ?? ""].some((v) =>
         v.toLowerCase().includes(q),
       ),
     );
