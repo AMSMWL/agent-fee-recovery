@@ -112,34 +112,78 @@ function SubmitPage() {
                 submit.mutate();
               }}
             >
-              <Field label="Broker name" required>
-                <Input required value={form.broker_name} onChange={set("broker_name")} />
-              </Field>
-              <Field label="Broker email">
-                <Input type="email" value={form.broker_email} onChange={set("broker_email")} />
-              </Field>
               <Field label="Agent name" required>
                 <Input required value={form.agent_name} onChange={set("agent_name")} />
-              </Field>
-              <Field label="Agent email">
-                <Input type="email" value={form.agent_email} onChange={set("agent_email")} />
-              </Field>
-              <Field label="Agent FMLS ID">
-                <Input value={form.agent_fmls_id} onChange={set("agent_fmls_id")} />
               </Field>
               <Field label="FMLS number" required hint="Used to match the credit on the FMLS invoice">
                 <Input required value={form.fmls_number} onChange={set("fmls_number")} />
               </Field>
+              <Field label="Transaction type" required className="sm:col-span-2">
+                <RadioGroup
+                  className="flex flex-col gap-2 sm:flex-row sm:gap-6"
+                  value={form.transaction_type}
+                  onValueChange={(v) => setForm((f) => ({ ...f, transaction_type: v as typeof f.transaction_type }))}
+                >
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem id="tt-purchase" value="personal_home_purchase" required />
+                    <Label htmlFor="tt-purchase" className="text-sm font-normal">
+                      Personal Home Purchase
+                    </Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem id="tt-sale" value="personal_home_sale" required />
+                    <Label htmlFor="tt-sale" className="text-sm font-normal">
+                      Personal Home Sale
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </Field>
               <Field label="Property address" className="sm:col-span-2">
                 <Input value={form.property_address} onChange={set("property_address")} />
               </Field>
-              <Field label="Closing date">
-                <Input type="date" value={form.closing_date} onChange={set("closing_date")} />
+              <Field label="Date of submission" required>
+                <Input required type="date" value={form.submission_date} onChange={set("submission_date")} />
               </Field>
-              <Field label="Fee amount paid" required>
-                <Input required inputMode="decimal" placeholder="0.00" value={form.fee_amount} onChange={set("fee_amount")} />
+              <Field
+                label="Has the agent requested a waiver in the last 5 years?"
+                required
+                className="sm:col-span-2"
+              >
+                <RadioGroup
+                  className="flex gap-6"
+                  value={form.prior_waiver}
+                  onValueChange={(v) => setForm((f) => ({ ...f, prior_waiver: v as typeof f.prior_waiver }))}
+                >
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem id="pw-yes" value="yes" required />
+                    <Label htmlFor="pw-yes" className="text-sm font-normal">
+                      Yes
+                    </Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem id="pw-no" value="no" required />
+                    <Label htmlFor="pw-no" className="text-sm font-normal">
+                      No
+                    </Label>
+                  </div>
+                </RadioGroup>
               </Field>
-              <Field label="Notes" className="sm:col-span-2">
+              {form.prior_waiver === "yes" ? (
+                <>
+                  <Field label="Date of previous waiver" required>
+                    <Input
+                      required
+                      type="date"
+                      value={form.prior_waiver_date}
+                      onChange={set("prior_waiver_date")}
+                    />
+                  </Field>
+                  <Field label="Previous waiver details" required>
+                    <Input required value={form.prior_waiver_details} onChange={set("prior_waiver_details")} />
+                  </Field>
+                </>
+              ) : null}
+              <Field label="Broker notes" className="sm:col-span-2">
                 <Textarea rows={3} value={form.notes} onChange={set("notes")} />
               </Field>
 
