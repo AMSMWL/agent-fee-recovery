@@ -50,15 +50,14 @@ function SubmitPage() {
   const submit = useMutation({
     mutationFn: async () => {
       const { error } = await supabase.from("refund_requests").insert({
-        broker_name: form.broker_name.trim(),
-        broker_email: form.broker_email.trim() || null,
         agent_name: form.agent_name.trim(),
-        agent_email: form.agent_email.trim() || null,
-        agent_fmls_id: form.agent_fmls_id.trim() || null,
+        transaction_type: form.transaction_type || null,
         fmls_number: form.fmls_number.trim(),
         property_address: form.property_address.trim() || null,
-        closing_date: form.closing_date || null,
-        fee_amount: Number(form.fee_amount.replace(/[$,\s]/g, "")) || 0,
+        submission_date: form.submission_date || null,
+        prior_waiver: form.prior_waiver === "yes",
+        prior_waiver_date: form.prior_waiver === "yes" ? form.prior_waiver_date || null : null,
+        prior_waiver_details: form.prior_waiver === "yes" ? form.prior_waiver_details.trim() || null : null,
         notes: form.notes.trim() || null,
       });
       if (error) throw error;
