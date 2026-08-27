@@ -29,15 +29,14 @@ export const Route = createFileRoute("/")({
 });
 
 const emptyForm = {
-  broker_name: "",
-  broker_email: "",
   agent_name: "",
-  agent_email: "",
-  agent_fmls_id: "",
+  transaction_type: "" as "" | "personal_home_purchase" | "personal_home_sale",
   fmls_number: "",
   property_address: "",
-  closing_date: "",
-  fee_amount: "",
+  submission_date: "",
+  prior_waiver: "" as "" | "yes" | "no",
+  prior_waiver_date: "",
+  prior_waiver_details: "",
   notes: "",
 };
 
