@@ -203,19 +203,24 @@ function RequestTable({
             ) : (
               rows.map((row) => (
                 <tr key={row.id} className="border-t border-border align-middle">
-                  <td className="whitespace-nowrap px-5 py-3 text-muted-foreground">{shortDate(row.created_at)}</td>
-                  <td className="px-5 py-3 font-medium">{row.broker_name}</td>
-                  <td className="px-5 py-3">
-                    {row.agent_name}
-                    {row.agent_fmls_id ? (
-                      <span className="block text-xs text-muted-foreground">ID {row.agent_fmls_id}</span>
-                    ) : null}
+                  <td className="whitespace-nowrap px-5 py-3 text-muted-foreground">
+                    {shortDate(row.submission_date ?? row.created_at)}
+                  </td>
+                  <td className="px-5 py-3 font-medium">{row.agent_name}</td>
+                  <td className="whitespace-nowrap px-5 py-3 text-muted-foreground">
+                    {row.transaction_type === "personal_home_purchase"
+                      ? "Home purchase"
+                      : row.transaction_type === "personal_home_sale"
+                        ? "Home sale"
+                        : "—"}
                   </td>
                   <td className="px-5 py-3 font-mono text-xs">{row.fmls_number}</td>
                   <td className="max-w-[16rem] truncate px-5 py-3 text-muted-foreground">
                     {row.property_address ?? "—"}
                   </td>
-                  <td className="whitespace-nowrap px-5 py-3 text-right font-medium">{currency(row.fee_amount)}</td>
+                  <td className="whitespace-nowrap px-5 py-3 text-muted-foreground">
+                    {row.prior_waiver ? shortDate(row.prior_waiver_date) : "No"}
+                  </td>
                   {showCredit ? (
                     <td className="whitespace-nowrap px-5 py-3 text-right text-muted-foreground">
                       {row.credit_amount == null ? "—" : currency(row.credit_amount)}
