@@ -2,17 +2,18 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type RefundStatus = "pending" | "approved" | "processed";
 
+export type TransactionType = "personal_home_purchase" | "personal_home_sale";
+
 export type RefundRequest = {
   id: string;
-  broker_name: string;
-  broker_email: string | null;
   agent_name: string;
-  agent_email: string | null;
-  agent_fmls_id: string | null;
   fmls_number: string;
+  transaction_type: TransactionType | null;
   property_address: string | null;
-  closing_date: string | null;
-  fee_amount: number;
+  submission_date: string | null;
+  prior_waiver: boolean;
+  prior_waiver_date: string | null;
+  prior_waiver_details: string | null;
   notes: string | null;
   status: RefundStatus;
   credit_amount: number | null;

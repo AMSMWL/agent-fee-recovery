@@ -46,14 +46,14 @@ function Dashboard() {
     const q = search.trim().toLowerCase();
     if (!q) return requests;
     return requests.filter((r) =>
-      [r.broker_name, r.agent_name, r.fmls_number, r.property_address ?? ""].some((v) =>
+      [r.agent_name, r.fmls_number, r.property_address ?? ""].some((v) =>
         v.toLowerCase().includes(q),
       ),
     );
   }, [requests, search]);
 
   const byStatus = (status: RefundRequest["status"]) => filtered.filter((r) => r.status === status);
-  const total = (rows: RefundRequest[], key: "fee_amount" | "credit_amount") =>
+  const total = (rows: RefundRequest[], key: "credit_amount") =>
     rows.reduce((sum, r) => sum + Number(r[key] ?? 0), 0);
 
   const pending = byStatus("pending");
@@ -63,14 +63,14 @@ function Dashboard() {
   return (
     <div className="space-y-8">
       <div className="grid gap-4 sm:grid-cols-3">
-        <Stat label="Pending submissions" value={String(pending.length)} sub={`${currency(total(pending, "fee_amount"))} in fees`} />
+        <Stat label="Pending submissions" value={String(pending.length)} sub="Awaiting FMLS credit" />
         <Stat
           label="Approved — ready to refund"
           value={String(approved.length)}
           sub={`${currency(total(approved, "credit_amount"))} credited by FMLS`}
           highlight
         />
-        <Stat label="Processed" value={String(processed.length)} sub={`${currency(total(processed, "fee_amount"))} refunded`} />
+        <Stat label="Processed" value={String(processed.length)} sub={`${currency(total(processed, "credit_amount"))} refunded`} />
       </div>
 
       <Tabs defaultValue="pending">
@@ -176,11 +176,11 @@ function RequestTable({
           <thead className="bg-secondary text-left text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="px-5 py-3 font-semibold">Submitted</th>
-              <th className="px-5 py-3 font-semibold">Broker</th>
               <th className="px-5 py-3 font-semibold">Agent</th>
+              <th className="px-5 py-3 font-semibold">Type</th>
               <th className="px-5 py-3 font-semibold">FMLS #</th>
               <th className="px-5 py-3 font-semibold">Property</th>
-              <th className="px-5 py-3 text-right font-semibold">Fee</th>
+              <th className="px-5 py-3 font-semibold">Prior waiver</th>
               {showCredit ? <th className="px-5 py-3 text-right font-semibold">FMLS credit</th> : null}
               {showProcessed ? <th className="px-5 py-3 font-semibold">Processed</th> : null}
               <th className="px-5 py-3 font-semibold">Status</th>
@@ -203,19 +203,24 @@ function RequestTable({
             ) : (
               rows.map((row) => (
                 <tr key={row.id} className="border-t border-border align-middle">
-                  <td className="whitespace-nowrap px-5 py-3 text-muted-foreground">{shortDate(row.created_at)}</td>
-                  <td className="px-5 py-3 font-medium">{row.broker_name}</td>
-                  <td className="px-5 py-3">
-                    {row.agent_name}
-                    {row.agent_fmls_id ? (
-                      <span className="block text-xs text-muted-foreground">ID {row.agent_fmls_id}</span>
-                    ) : null}
+                  <td className="whitespace-nowrap px-5 py-3 text-muted-foreground">
+                    {shortDate(row.submission_date ?? row.created_at)}
+                  </td>
+                  <td className="px-5 py-3 font-medium">{row.agent_name}</td>
+                  <td className="whitespace-nowrap px-5 py-3 text-muted-foreground">
+                    {row.transaction_type === "personal_home_purchase"
+                      ? "Home purchase"
+                      : row.transaction_type === "personal_home_sale"
+                        ? "Home sale"
+                        : "—"}
                   </td>
                   <td className="px-5 py-3 font-mono text-xs">{row.fmls_number}</td>
                   <td className="max-w-[16rem] truncate px-5 py-3 text-muted-foreground">
                     {row.property_address ?? "—"}
                   </td>
-                  <td className="whitespace-nowrap px-5 py-3 text-right font-medium">{currency(row.fee_amount)}</td>
+                  <td className="whitespace-nowrap px-5 py-3 text-muted-foreground">
+                    {row.prior_waiver ? shortDate(row.prior_waiver_date) : "No"}
+                  </td>
                   {showCredit ? (
                     <td className="whitespace-nowrap px-5 py-3 text-right text-muted-foreground">
                       {row.credit_amount == null ? "—" : currency(row.credit_amount)}
