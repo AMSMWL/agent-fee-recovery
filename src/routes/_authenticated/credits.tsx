@@ -89,7 +89,7 @@ function CreditsPage() {
         <Stat label="Total credits" value={String(stats.total)} sub={`${currency(stats.amount)} entered`} />
         <Stat label="Matched" value={String(stats.matched)} sub="Approved requests" highlight />
         <Stat label="Unmatched" value={String(stats.unmatched)} sub="Awaiting a pending request" />
-        <Stat label="Pending requests" value="—" sub="View on Dashboard" />
+        <Stat label="Pending requests" value={String(stats.pending)} sub="Awaiting FMLS credit" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,28rem)_1fr]">
