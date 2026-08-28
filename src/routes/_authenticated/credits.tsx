@@ -45,13 +45,19 @@ function CreditsPage() {
     queryFn: fetchCredits,
   });
 
+  const { data: requests = [] } = useQuery({
+    queryKey: ["refund_requests"],
+    queryFn: fetchRequests,
+  });
+
   const stats = useMemo(() => {
     const total = credits.length;
     const matched = credits.filter((c) => c.matched_request_id).length;
     const unmatched = total - matched;
     const amount = credits.reduce((sum, c) => sum + c.credit_amount, 0);
-    return { total, matched, unmatched, amount };
-  }, [credits]);
+    const pending = requests.filter((r) => r.status === "pending").length;
+    return { total, matched, unmatched, amount, pending };
+  }, [credits, requests]);
 
   const add = useMutation({
     mutationFn: addCredits,
