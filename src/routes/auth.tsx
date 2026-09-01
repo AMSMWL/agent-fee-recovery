@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-
+import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +37,19 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
+  useEffect(() => {
+    let cancelled = false;
+    supabase.auth.getSession().then(({ data }) => {
+      if (cancelled || !data.session) return;
+      const saved = sessionStorage.getItem("refund_redirect");
+      sessionStorage.removeItem("refund_redirect");
+      navigate({ to: safePath(saved ?? dest) });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate, dest]);
+
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
@@ -66,11 +79,14 @@ function AuthPage() {
     setBusy(true);
     try {
       sessionStorage.setItem("refund_redirect", dest);
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: window.location.origin },
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: `${window.location.origin}/auth`,
       });
-      if (error) throw error;
+      if (result.error) throw result.error;
+      if (result.redirected) return;
+      const saved = sessionStorage.getItem("refund_redirect");
+      sessionStorage.removeItem("refund_redirect");
+      navigate({ to: safePath(saved ?? dest) });
     } catch (error) {
       toast.error((error as Error).message);
     } finally {
