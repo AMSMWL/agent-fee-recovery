@@ -74,16 +74,39 @@ export async function processRefund(id: string, note: string | null) {
 
 export type CreditInput = { fmls_number: string; credit_amount: number; invoice_month: string | null };
 
+/** Normalizes "2026-08" (month input) or "8/2026" to a valid first-of-month date string. */
+export function normalizeInvoiceMonth(value: string | null | undefined): string | null {
+  const raw = (value ?? "").trim();
+  if (!raw) return null;
+  if (/^\d{4}-\d{2}$/.test(raw)) return `${raw}-01`;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+  const slash = raw.match(/^(\d{1,2})[/-](\d{4})$/);
+  if (slash) return `${slash[2]}-${String(slash[1]).padStart(2, "0")}-01`;
+  const parsed = new Date(raw);
+  if (!Number.isNaN(parsed.getTime())) {
+    return `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}-01`;
+  }
+  return null;
+}
+
 export async function addCredits(rows: CreditInput[]) {
   const { data: session } = await supabase.auth.getSession();
   const userId = session.session?.user.id ?? null;
   const { data, error } = await supabase
     .from("fmls_credits")
-    .insert(rows.map((r) => ({ ...r, entered_by: userId })))
+    .insert(
+      rows.map((r) => ({
+        fmls_number: r.fmls_number.trim(),
+        credit_amount: r.credit_amount,
+        invoice_month: normalizeInvoiceMonth(r.invoice_month),
+        entered_by: userId,
+      })),
+    )
     .select("*");
   if (error) throw error;
   return (data ?? []) as unknown as FmlsCredit[];
 }
+
 
 /** Parses pasted CSV / TSV text: FMLS number, amount[, invoice month] per line. */
 export function parseCreditText(text: string): CreditInput[] {
