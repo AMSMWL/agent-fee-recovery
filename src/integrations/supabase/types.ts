@@ -57,6 +57,8 @@ export type Database = {
           agent_email: string | null
           agent_fmls_id: string | null
           agent_name: string
+          bank_account_reference: string | null
+          bank_name: string | null
           broker_email: string | null
           broker_name: string | null
           closing_date: string | null
@@ -68,6 +70,9 @@ export type Database = {
           fmls_number: string
           id: string
           notes: string | null
+          payment_date: string | null
+          payment_method: string | null
+          payment_reference: string | null
           prior_waiver: boolean
           prior_waiver_date: string | null
           prior_waiver_details: string | null
@@ -75,6 +80,7 @@ export type Database = {
           processed_by: string | null
           processed_note: string | null
           property_address: string | null
+          refund_amount: number | null
           status: Database["public"]["Enums"]["refund_status"]
           submission_date: string | null
           transaction_type:
@@ -86,6 +92,8 @@ export type Database = {
           agent_email?: string | null
           agent_fmls_id?: string | null
           agent_name: string
+          bank_account_reference?: string | null
+          bank_name?: string | null
           broker_email?: string | null
           broker_name?: string | null
           closing_date?: string | null
@@ -97,6 +105,9 @@ export type Database = {
           fmls_number: string
           id?: string
           notes?: string | null
+          payment_date?: string | null
+          payment_method?: string | null
+          payment_reference?: string | null
           prior_waiver?: boolean
           prior_waiver_date?: string | null
           prior_waiver_details?: string | null
@@ -104,6 +115,7 @@ export type Database = {
           processed_by?: string | null
           processed_note?: string | null
           property_address?: string | null
+          refund_amount?: number | null
           status?: Database["public"]["Enums"]["refund_status"]
           submission_date?: string | null
           transaction_type?:
@@ -115,6 +127,8 @@ export type Database = {
           agent_email?: string | null
           agent_fmls_id?: string | null
           agent_name?: string
+          bank_account_reference?: string | null
+          bank_name?: string | null
           broker_email?: string | null
           broker_name?: string | null
           closing_date?: string | null
@@ -126,6 +140,9 @@ export type Database = {
           fmls_number?: string
           id?: string
           notes?: string | null
+          payment_date?: string | null
+          payment_method?: string | null
+          payment_reference?: string | null
           prior_waiver?: boolean
           prior_waiver_date?: string | null
           prior_waiver_details?: string | null
@@ -133,6 +150,7 @@ export type Database = {
           processed_by?: string | null
           processed_note?: string | null
           property_address?: string | null
+          refund_amount?: number | null
           status?: Database["public"]["Enums"]["refund_status"]
           submission_date?: string | null
           transaction_type?:
