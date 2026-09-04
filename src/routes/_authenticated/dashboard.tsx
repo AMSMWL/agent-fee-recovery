@@ -222,8 +222,19 @@ function RequestTable({
                     </td>
                   ) : null}
                   {showProcessed ? (
-                    <td className="whitespace-nowrap px-5 py-3 text-muted-foreground">{shortDate(row.processed_at)}</td>
+                    <>
+                      <td className="whitespace-nowrap px-5 py-3 text-muted-foreground">
+                        {shortDate(row.payment_date ?? row.processed_at)}
+                      </td>
+                      <td className="whitespace-nowrap px-5 py-3 text-right text-muted-foreground">
+                        {currency(row.refund_amount ?? row.credit_amount)}
+                      </td>
+                      <td className="px-5 py-3 text-muted-foreground">
+                        {[row.bank_name, row.payment_method].filter(Boolean).join(" · ") || "—"}
+                      </td>
+                    </>
                   ) : null}
+
                   <td className="px-5 py-3">
                     <StatusBadge status={row.status} />
                   </td>
