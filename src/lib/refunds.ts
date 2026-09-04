@@ -20,8 +20,15 @@ export type RefundRequest = {
   credit_entered_at: string | null;
   processed_at: string | null;
   processed_note: string | null;
+  payment_date: string | null;
+  refund_amount: number | null;
+  bank_name: string | null;
+  bank_account_reference: string | null;
+  payment_method: string | null;
+  payment_reference: string | null;
   created_at: string;
 };
+
 
 export type FmlsCredit = {
   id: string;
