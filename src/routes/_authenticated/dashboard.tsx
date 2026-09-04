@@ -102,15 +102,16 @@ function Dashboard() {
             rows={approved}
             loading={isLoading}
             empty="Nothing approved yet — enter FMLS credits to approve pending requests."
-            caption="FMLS credit received. Issue the refund, then mark it processed."
+            caption="FMLS credit received. Record the payment details to process the refund."
             showCredit
-            action={(row) => (
-              <Button size="sm" disabled={process.isPending} onClick={() => process.mutate(row.id)}>
-                Process refund
+            action={() => (
+              <Button asChild size="sm">
+                <Link to="/payments">Record payment</Link>
               </Button>
             )}
           />
         </TabsContent>
+
 
         <TabsContent value="processed" className="mt-4">
           <RequestTable
