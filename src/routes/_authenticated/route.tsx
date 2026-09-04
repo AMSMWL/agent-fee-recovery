@@ -32,7 +32,9 @@ function AuthenticatedLayout() {
           <nav className="flex items-center gap-1">
             <NavLink to="/dashboard">Dashboard</NavLink>
             <NavLink to="/credits">FMLS Credits</NavLink>
+            <NavLink to="/payments">Issue Payments</NavLink>
             <NavLink to="/">Broker form</NavLink>
+
           </nav>
           <div className="flex items-center gap-3 border-l border-primary-foreground/20 pl-4">
             <span className="hidden text-xs text-primary-foreground/70 sm:inline">{user.email}</span>

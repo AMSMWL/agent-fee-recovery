@@ -20,8 +20,15 @@ export type RefundRequest = {
   credit_entered_at: string | null;
   processed_at: string | null;
   processed_note: string | null;
+  payment_date: string | null;
+  refund_amount: number | null;
+  bank_name: string | null;
+  bank_account_reference: string | null;
+  payment_method: string | null;
+  payment_reference: string | null;
   created_at: string;
 };
+
 
 export type FmlsCredit = {
   id: string;
@@ -58,7 +65,17 @@ export async function fetchCredits() {
   return (data ?? []) as unknown as FmlsCredit[];
 }
 
-export async function processRefund(id: string, note: string | null) {
+export type PayoutInput = {
+  payment_date: string;
+  refund_amount: number;
+  bank_name: string;
+  bank_account_reference: string | null;
+  payment_method: string | null;
+  payment_reference: string | null;
+  processed_note: string | null;
+};
+
+export async function processRefund(id: string, note: string | null, payout?: PayoutInput) {
   const { data: session } = await supabase.auth.getSession();
   const { error } = await supabase
     .from("refund_requests")
@@ -66,11 +83,22 @@ export async function processRefund(id: string, note: string | null) {
       status: "processed",
       processed_at: new Date().toISOString(),
       processed_by: session.session?.user.id ?? null,
-      processed_note: note,
+      processed_note: payout?.processed_note ?? note,
+      ...(payout
+        ? {
+            payment_date: payout.payment_date,
+            refund_amount: payout.refund_amount,
+            bank_name: payout.bank_name,
+            bank_account_reference: payout.bank_account_reference,
+            payment_method: payout.payment_method,
+            payment_reference: payout.payment_reference,
+          }
+        : {}),
     })
     .eq("id", id);
   if (error) throw error;
 }
+
 
 export type CreditInput = { fmls_number: string; credit_amount: number; invoice_month: string | null };
 

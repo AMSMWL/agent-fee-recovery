@@ -1,13 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { toast } from "sonner";
+
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatusBadge } from "@/components/StatusBadge";
-import { currency, fetchRequests, processRefund, shortDate, type RefundRequest } from "@/lib/refunds";
+import { currency, fetchRequests, shortDate, type RefundRequest } from "@/lib/refunds";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -25,7 +25,6 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function Dashboard() {
-  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
 
   const { data: requests = [], isLoading } = useQuery({
@@ -33,14 +32,6 @@ function Dashboard() {
     queryFn: fetchRequests,
   });
 
-  const process = useMutation({
-    mutationFn: (id: string) => processRefund(id, null),
-    onSuccess: () => {
-      toast.success("Refund processed and moved to history");
-      queryClient.invalidateQueries({ queryKey: ["refund_requests"] });
-    },
-    onError: (error: Error) => toast.error(error.message),
-  });
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -102,15 +93,16 @@ function Dashboard() {
             rows={approved}
             loading={isLoading}
             empty="Nothing approved yet — enter FMLS credits to approve pending requests."
-            caption="FMLS credit received. Issue the refund, then mark it processed."
+            caption="FMLS credit received. Record the payment details to process the refund."
             showCredit
-            action={(row) => (
-              <Button size="sm" disabled={process.isPending} onClick={() => process.mutate(row.id)}>
-                Process refund
+            action={() => (
+              <Button asChild size="sm">
+                <Link to="/payments">Record payment</Link>
               </Button>
             )}
           />
         </TabsContent>
+
 
         <TabsContent value="processed" className="mt-4">
           <RequestTable
@@ -182,7 +174,10 @@ function RequestTable({
               <th className="px-5 py-3 font-semibold">Property</th>
               <th className="px-5 py-3 font-semibold">Prior waiver</th>
               {showCredit ? <th className="px-5 py-3 text-right font-semibold">FMLS credit</th> : null}
-              {showProcessed ? <th className="px-5 py-3 font-semibold">Processed</th> : null}
+              {showProcessed ? <th className="px-5 py-3 font-semibold">Paid</th> : null}
+              {showProcessed ? <th className="px-5 py-3 text-right font-semibold">Amount paid</th> : null}
+              {showProcessed ? <th className="px-5 py-3 font-semibold">Bank / method</th> : null}
+
               <th className="px-5 py-3 font-semibold">Status</th>
               {action ? <th className="px-5 py-3 text-right font-semibold">Action</th> : null}
             </tr>
@@ -227,8 +222,19 @@ function RequestTable({
                     </td>
                   ) : null}
                   {showProcessed ? (
-                    <td className="whitespace-nowrap px-5 py-3 text-muted-foreground">{shortDate(row.processed_at)}</td>
+                    <>
+                      <td className="whitespace-nowrap px-5 py-3 text-muted-foreground">
+                        {shortDate(row.payment_date ?? row.processed_at)}
+                      </td>
+                      <td className="whitespace-nowrap px-5 py-3 text-right text-muted-foreground">
+                        {currency(row.refund_amount ?? row.credit_amount)}
+                      </td>
+                      <td className="px-5 py-3 text-muted-foreground">
+                        {[row.bank_name, row.payment_method].filter(Boolean).join(" · ") || "—"}
+                      </td>
+                    </>
                   ) : null}
+
                   <td className="px-5 py-3">
                     <StatusBadge status={row.status} />
                   </td>
