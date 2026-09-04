@@ -174,7 +174,10 @@ function RequestTable({
               <th className="px-5 py-3 font-semibold">Property</th>
               <th className="px-5 py-3 font-semibold">Prior waiver</th>
               {showCredit ? <th className="px-5 py-3 text-right font-semibold">FMLS credit</th> : null}
-              {showProcessed ? <th className="px-5 py-3 font-semibold">Processed</th> : null}
+              {showProcessed ? <th className="px-5 py-3 font-semibold">Paid</th> : null}
+              {showProcessed ? <th className="px-5 py-3 text-right font-semibold">Amount paid</th> : null}
+              {showProcessed ? <th className="px-5 py-3 font-semibold">Bank / method</th> : null}
+
               <th className="px-5 py-3 font-semibold">Status</th>
               {action ? <th className="px-5 py-3 text-right font-semibold">Action</th> : null}
             </tr>
