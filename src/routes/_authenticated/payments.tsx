@@ -108,9 +108,19 @@ function PaymentsPage() {
   const submit = (row: RefundRequest) => {
     if (!form) return;
     const amount = Number(form.refund_amount.replace(/[$,\s]/g, ""));
-    if (!form.payment_date) return toast.error("Enter the payment date");
-    if (!Number.isFinite(amount) || amount <= 0) return toast.error("Enter a refund amount greater than zero");
-    if (!form.bank_name.trim()) return toast.error("Enter the bank or account the refund was paid from");
+    if (!form.payment_date) {
+      toast.error("Enter the payment date");
+      return;
+    }
+    if (!Number.isFinite(amount) || amount <= 0) {
+      toast.error("Enter a refund amount greater than zero");
+      return;
+    }
+    if (!form.bank_name.trim()) {
+      toast.error("Enter the bank or account the refund was paid from");
+      return;
+    }
+
 
     pay.mutate({
       id: row.id,
