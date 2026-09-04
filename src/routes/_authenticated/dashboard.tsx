@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatusBadge } from "@/components/StatusBadge";
-import { currency, fetchRequests, processRefund, shortDate, type RefundRequest } from "@/lib/refunds";
+import { currency, fetchRequests, shortDate, type RefundRequest } from "@/lib/refunds";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -25,7 +25,6 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function Dashboard() {
-  const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
 
   const { data: requests = [], isLoading } = useQuery({
@@ -33,14 +32,6 @@ function Dashboard() {
     queryFn: fetchRequests,
   });
 
-  const process = useMutation({
-    mutationFn: (id: string) => processRefund(id, null),
-    onSuccess: () => {
-      toast.success("Refund processed and moved to history");
-      queryClient.invalidateQueries({ queryKey: ["refund_requests"] });
-    },
-    onError: (error: Error) => toast.error(error.message),
-  });
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
