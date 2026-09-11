@@ -1,7 +1,9 @@
 import { createFileRoute, Outlet, redirect, Link, useRouter } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { fetchMyRoles, isAdmin, isStaff } from "@/lib/roles";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -18,6 +20,9 @@ export const Route = createFileRoute("/_authenticated")({
 function AuthenticatedLayout() {
   const { user } = Route.useRouteContext();
   const router = useRouter();
+  const { data: roles = [] } = useQuery({ queryKey: ["my_roles"], queryFn: fetchMyRoles });
+  const staff = isStaff(roles);
+  const admin = isAdmin(roles);
 
   return (
     <div className="min-h-screen bg-background">
