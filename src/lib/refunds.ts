@@ -76,13 +76,13 @@ export type PayoutInput = {
 };
 
 export async function processRefund(id: string, note: string | null, payout?: PayoutInput) {
-  const { data: session } = await supabase.auth.getSession();
+  const { data: userData } = await supabase.auth.getUser();
   const { error } = await supabase
     .from("refund_requests")
     .update({
       status: "processed",
       processed_at: new Date().toISOString(),
-      processed_by: session.session?.user.id ?? null,
+      processed_by: userData.user?.id ?? null,
       processed_note: payout?.processed_note ?? note,
       ...(payout
         ? {
@@ -118,8 +118,8 @@ export function normalizeInvoiceMonth(value: string | null | undefined): string 
 }
 
 export async function addCredits(rows: CreditInput[]) {
-  const { data: session } = await supabase.auth.getSession();
-  const userId = session.session?.user.id ?? null;
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData.user?.id ?? null;
   const { data, error } = await supabase
     .from("fmls_credits")
     .insert(
