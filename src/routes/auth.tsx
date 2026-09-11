@@ -32,15 +32,14 @@ function AuthPage() {
   const search = useSearch({ from: "/auth" });
   const dest = safePath(search.redirect);
 
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    supabase.auth.getSession().then(({ data }) => {
-      if (cancelled || !data.session) return;
+    supabase.auth.getUser().then(({ data }) => {
+      if (cancelled || !data.user) return;
       const saved = sessionStorage.getItem("refund_redirect");
       sessionStorage.removeItem("refund_redirect");
       navigate({ to: safePath(saved ?? dest) });
@@ -54,20 +53,10 @@ function AuthPage() {
     e.preventDefault();
     setBusy(true);
     try {
-      if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: `${window.location.origin}${dest}` },
-        });
-        if (error) throw error;
-        toast.success("Account created. Check your email if confirmation is required.");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-      }
-      const { data } = await supabase.auth.getSession();
-      if (data.session) navigate({ to: dest });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      const { data } = await supabase.auth.getUser();
+      if (data.user) navigate({ to: dest });
     } catch (error) {
       toast.error((error as Error).message);
     } finally {
