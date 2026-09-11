@@ -36,13 +36,16 @@ function AuthenticatedLayout() {
           </div>
           <nav className="flex items-center gap-1">
             <NavLink to="/dashboard">Dashboard</NavLink>
-            <NavLink to="/credits">FMLS Credits</NavLink>
-            <NavLink to="/payments">Issue Payments</NavLink>
+            {staff ? <NavLink to="/credits">FMLS Credits</NavLink> : null}
+            {staff ? <NavLink to="/payments">Issue Payments</NavLink> : null}
+            {admin ? <NavLink to="/team">Team access</NavLink> : null}
             <NavLink to="/">Broker form</NavLink>
-
           </nav>
           <div className="flex items-center gap-3 border-l border-primary-foreground/20 pl-4">
-            <span className="hidden text-xs text-primary-foreground/70 sm:inline">{user.email}</span>
+            <span className="hidden text-xs text-primary-foreground/70 sm:inline">
+              {user.email}
+              {roles.length > 0 ? ` · ${roles.join(", ")}` : " · no role assigned"}
+            </span>
             <Button
               variant="secondary"
               size="sm"
