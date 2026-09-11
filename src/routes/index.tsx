@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { supabase } from "@/integrations/supabase/client";
+import { submitRefundRequest } from "@/lib/refunds.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,18 +50,21 @@ function SubmitPage() {
 
   const submit = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from("refund_requests").insert({
-        agent_name: form.agent_name.trim(),
-        transaction_type: form.transaction_type || null,
-        fmls_number: form.fmls_number.trim(),
-        property_address: form.property_address.trim() || null,
-        submission_date: form.submission_date || null,
-        prior_waiver: form.prior_waiver === "yes",
-        prior_waiver_date: form.prior_waiver === "yes" ? form.prior_waiver_date || null : null,
-        prior_waiver_details: form.prior_waiver === "yes" ? form.prior_waiver_details.trim() || null : null,
-        notes: form.notes.trim() || null,
+      if (!form.transaction_type) throw new Error("Select a transaction type");
+      await submitRefundRequest({
+        data: {
+          agent_name: form.agent_name.trim(),
+          transaction_type: form.transaction_type,
+          fmls_number: form.fmls_number.trim(),
+          property_address: form.property_address.trim() || null,
+          submission_date: form.submission_date,
+          prior_waiver: form.prior_waiver === "yes",
+          prior_waiver_date: form.prior_waiver === "yes" ? form.prior_waiver_date || null : null,
+          prior_waiver_details:
+            form.prior_waiver === "yes" ? form.prior_waiver_details.trim() || null : null,
+          notes: form.notes.trim() || null,
+        },
       });
-      if (error) throw error;
     },
     onSuccess: () => {
       setForm(emptyForm);

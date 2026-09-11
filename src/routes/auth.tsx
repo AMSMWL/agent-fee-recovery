@@ -32,15 +32,14 @@ function AuthPage() {
   const search = useSearch({ from: "/auth" });
   const dest = safePath(search.redirect);
 
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    supabase.auth.getSession().then(({ data }) => {
-      if (cancelled || !data.session) return;
+    supabase.auth.getUser().then(({ data }) => {
+      if (cancelled || !data.user) return;
       const saved = sessionStorage.getItem("refund_redirect");
       sessionStorage.removeItem("refund_redirect");
       navigate({ to: safePath(saved ?? dest) });
@@ -54,20 +53,10 @@ function AuthPage() {
     e.preventDefault();
     setBusy(true);
     try {
-      if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: `${window.location.origin}${dest}` },
-        });
-        if (error) throw error;
-        toast.success("Account created. Check your email if confirmation is required.");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-      }
-      const { data } = await supabase.auth.getSession();
-      if (data.session) navigate({ to: dest });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      const { data } = await supabase.auth.getUser();
+      if (data.user) navigate({ to: dest });
     } catch (error) {
       toast.error((error as Error).message);
     } finally {
@@ -99,9 +88,7 @@ function AuthPage() {
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-panel">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">eXp Realty</p>
         <h1 className="mt-1 text-2xl font-semibold">FMLS Fee Refund Tracker</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          {mode === "signin" ? "Sign in to continue." : "Create your team account."}
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">Sign in to continue.</p>
 
         <Button className="mt-6 w-full" variant="outline" onClick={handleGoogle} disabled={busy}>
           Continue with Google
@@ -128,17 +115,13 @@ function AuthPage() {
             />
           </div>
           <Button type="submit" className="w-full" disabled={busy}>
-            {mode === "signin" ? "Sign in" : "Create account"}
+            Sign in
           </Button>
         </form>
 
-        <button
-          type="button"
-          className="mt-6 w-full text-sm text-muted-foreground underline-offset-4 hover:underline"
-          onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-        >
-          {mode === "signin" ? "Need an account? Sign up" : "Already have an account? Sign in"}
-        </button>
+        <p className="mt-6 text-center text-xs text-muted-foreground">
+          Accounts are created by an administrator. Contact your admin for access.
+        </p>
       </div>
     </div>
   );
