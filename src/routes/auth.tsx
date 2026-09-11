@@ -88,9 +88,7 @@ function AuthPage() {
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-panel">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">eXp Realty</p>
         <h1 className="mt-1 text-2xl font-semibold">FMLS Fee Refund Tracker</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          {mode === "signin" ? "Sign in to continue." : "Create your team account."}
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">Sign in to continue.</p>
 
         <Button className="mt-6 w-full" variant="outline" onClick={handleGoogle} disabled={busy}>
           Continue with Google
@@ -117,17 +115,13 @@ function AuthPage() {
             />
           </div>
           <Button type="submit" className="w-full" disabled={busy}>
-            {mode === "signin" ? "Sign in" : "Create account"}
+            Sign in
           </Button>
         </form>
 
-        <button
-          type="button"
-          className="mt-6 w-full text-sm text-muted-foreground underline-offset-4 hover:underline"
-          onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-        >
-          {mode === "signin" ? "Need an account? Sign up" : "Already have an account? Sign in"}
-        </button>
+        <p className="mt-6 text-center text-xs text-muted-foreground">
+          Accounts are created by an administrator. Contact your admin for access.
+        </p>
       </div>
     </div>
   );
