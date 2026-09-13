@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+
+import { StaffOnly } from "@/components/StaffOnly";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -34,7 +36,11 @@ export const Route = createFileRoute("/_authenticated/credits")({
       },
     ],
   }),
-  component: CreditsPage,
+  component: () => (
+    <StaffOnly>
+      <CreditsPage />
+    </StaffOnly>
+  ),
 });
 
 function CreditsPage() {
