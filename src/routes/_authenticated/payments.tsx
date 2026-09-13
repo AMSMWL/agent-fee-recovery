@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+
+import { StaffOnly } from "@/components/StaffOnly";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -35,7 +37,11 @@ export const Route = createFileRoute("/_authenticated/payments")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: PaymentsPage,
+  component: () => (
+    <StaffOnly>
+      <PaymentsPage />
+    </StaffOnly>
+  ),
 });
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
