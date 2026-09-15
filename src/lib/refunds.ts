@@ -106,21 +106,16 @@ export function normalizeInvoiceMonth(value: string | null | undefined): string 
 }
 
 export async function addCredits(rows: CreditInput[]) {
-  const { data: userData } = await supabase.auth.getUser();
-  const userId = userData.user?.id ?? null;
-  const { data, error } = await supabase
-    .from("fmls_credits")
-    .insert(
-      rows.map((r) => ({
+  const inserted = await addFmlsCredits({
+    data: {
+      rows: rows.map((r) => ({
         fmls_number: r.fmls_number.trim(),
         credit_amount: r.credit_amount,
         invoice_month: normalizeInvoiceMonth(r.invoice_month),
-        entered_by: userId,
       })),
-    )
-    .select("*");
-  if (error) throw error;
-  return (data ?? []) as unknown as FmlsCredit[];
+    },
+  });
+  return (inserted ?? []) as unknown as FmlsCredit[];
 }
 
 
