@@ -4,18 +4,25 @@ import { z } from "zod";
 
 const roleSchema = z.enum(["admin", "accounting", "viewer"]);
 
-async function assertAdmin(context: { supabase: any; userId: string }) {
+type AdminContext = {
+  supabase: {
+    rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }>;
+  };
+  userId: string;
+};
+
+async function assertAdmin(context: AdminContext) {
   const { data, error } = await context.supabase.rpc("has_role", {
     _user_id: context.userId,
     _role: "admin",
   });
-  if (error || !data) throw new Error("Forbidden: admin access required");
+  if (error || data !== true) throw new Error("Forbidden: admin access required");
 }
 
 export const listTeam = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context as any);
+    await assertAdmin(context as unknown as AdminContext);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: users, error } = await supabaseAdmin.auth.admin.listUsers({ perPage: 200 });
@@ -37,7 +44,7 @@ export const setTeamRole = createServerFn({ method: "POST" })
     z.object({ userId: z.string().uuid(), role: roleSchema }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context as any);
+    await assertAdmin(context as unknown as AdminContext);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId);

@@ -1,4 +1,9 @@
-import { supabase } from "@/integrations/supabase/client";
+import {
+  addFmlsCredits,
+  listFmlsCredits,
+  listRefundRequests,
+  processRefundPayment,
+} from "@/lib/refunds.functions";
 
 export type RefundStatus = "pending" | "approved" | "processed";
 
@@ -48,21 +53,13 @@ export const shortDate = (value: string | null | undefined) =>
   value ? new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
 
 export async function fetchRequests() {
-  const { data, error } = await supabase
-    .from("refund_requests")
-    .select("*")
-    .order("created_at", { ascending: false });
-  if (error) throw error;
-  return (data ?? []) as unknown as RefundRequest[];
+  const rows = await listRefundRequests();
+  return (rows ?? []) as unknown as RefundRequest[];
 }
 
 export async function fetchCredits() {
-  const { data, error } = await supabase
-    .from("fmls_credits")
-    .select("*")
-    .order("created_at", { ascending: false });
-  if (error) throw error;
-  return (data ?? []) as unknown as FmlsCredit[];
+  const rows = await listFmlsCredits();
+  return (rows ?? []) as unknown as FmlsCredit[];
 }
 
 export type PayoutInput = {
@@ -75,28 +72,19 @@ export type PayoutInput = {
   processed_note: string | null;
 };
 
-export async function processRefund(id: string, note: string | null, payout?: PayoutInput) {
-  const { data: userData } = await supabase.auth.getUser();
-  const { error } = await supabase
-    .from("refund_requests")
-    .update({
-      status: "processed",
-      processed_at: new Date().toISOString(),
-      processed_by: userData.user?.id ?? null,
-      processed_note: payout?.processed_note ?? note,
-      ...(payout
-        ? {
-            payment_date: payout.payment_date,
-            refund_amount: payout.refund_amount,
-            bank_name: payout.bank_name,
-            bank_account_reference: payout.bank_account_reference,
-            payment_method: payout.payment_method,
-            payment_reference: payout.payment_reference,
-          }
-        : {}),
-    })
-    .eq("id", id);
-  if (error) throw error;
+export async function processRefund(id: string, note: string | null, payout: PayoutInput) {
+  await processRefundPayment({
+    data: {
+      id,
+      payment_date: payout.payment_date,
+      refund_amount: payout.refund_amount,
+      bank_name: payout.bank_name,
+      bank_account_reference: payout.bank_account_reference,
+      payment_method: payout.payment_method,
+      payment_reference: payout.payment_reference,
+      processed_note: payout.processed_note ?? note,
+    },
+  });
 }
 
 
@@ -118,21 +106,16 @@ export function normalizeInvoiceMonth(value: string | null | undefined): string 
 }
 
 export async function addCredits(rows: CreditInput[]) {
-  const { data: userData } = await supabase.auth.getUser();
-  const userId = userData.user?.id ?? null;
-  const { data, error } = await supabase
-    .from("fmls_credits")
-    .insert(
-      rows.map((r) => ({
+  const inserted = await addFmlsCredits({
+    data: {
+      rows: rows.map((r) => ({
         fmls_number: r.fmls_number.trim(),
         credit_amount: r.credit_amount,
         invoice_month: normalizeInvoiceMonth(r.invoice_month),
-        entered_by: userId,
       })),
-    )
-    .select("*");
-  if (error) throw error;
-  return (data ?? []) as unknown as FmlsCredit[];
+    },
+  });
+  return (inserted ?? []) as unknown as FmlsCredit[];
 }
 
 

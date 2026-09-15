@@ -212,6 +212,14 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      record_submission_attempt: {
+        Args: {
+          _client_key: string
+          _max_per_window: number
+          _window_minutes: number
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "accounting" | "viewer"
