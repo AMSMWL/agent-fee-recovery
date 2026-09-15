@@ -22,7 +22,7 @@ async function assertAdmin(context: AdminContext) {
 export const listTeam = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context as any);
+    await assertAdmin(context as unknown as AdminContext);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: users, error } = await supabaseAdmin.auth.admin.listUsers({ perPage: 200 });
@@ -44,7 +44,7 @@ export const setTeamRole = createServerFn({ method: "POST" })
     z.object({ userId: z.string().uuid(), role: roleSchema }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context as any);
+    await assertAdmin(context as unknown as AdminContext);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId);
