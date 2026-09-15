@@ -2,7 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 
 import { fetchMyRoles, isStaff } from "@/lib/roles";
 
-/** Hides accounting/admin screens from viewer accounts. */
+/**
+ * Hides accounting/admin screens from viewer accounts.
+ * UI convenience only — not a security boundary. Enforcement lives in the
+ * server functions (role check + auth middleware) and in the database policies.
+ */
 export function StaffOnly({ children }: { children: React.ReactNode }) {
   const { data: roles = [], isLoading } = useQuery({ queryKey: ["my_roles"], queryFn: fetchMyRoles });
 

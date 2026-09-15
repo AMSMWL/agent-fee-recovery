@@ -4,12 +4,19 @@ import { z } from "zod";
 
 const roleSchema = z.enum(["admin", "accounting", "viewer"]);
 
-async function assertAdmin(context: { supabase: any; userId: string }) {
+type AdminContext = {
+  supabase: {
+    rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }>;
+  };
+  userId: string;
+};
+
+async function assertAdmin(context: AdminContext) {
   const { data, error } = await context.supabase.rpc("has_role", {
     _user_id: context.userId,
     _role: "admin",
   });
-  if (error || !data) throw new Error("Forbidden: admin access required");
+  if (error || data !== true) throw new Error("Forbidden: admin access required");
 }
 
 export const listTeam = createServerFn({ method: "POST" })
