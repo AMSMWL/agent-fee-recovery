@@ -12,3 +12,8 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /dashboard
+Disallow: /credits
+Disallow: /payments
+Disallow: /team
+Disallow: /auth
