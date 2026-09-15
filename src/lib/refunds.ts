@@ -72,28 +72,19 @@ export type PayoutInput = {
   processed_note: string | null;
 };
 
-export async function processRefund(id: string, note: string | null, payout?: PayoutInput) {
-  const { data: userData } = await supabase.auth.getUser();
-  const { error } = await supabase
-    .from("refund_requests")
-    .update({
-      status: "processed",
-      processed_at: new Date().toISOString(),
-      processed_by: userData.user?.id ?? null,
-      processed_note: payout?.processed_note ?? note,
-      ...(payout
-        ? {
-            payment_date: payout.payment_date,
-            refund_amount: payout.refund_amount,
-            bank_name: payout.bank_name,
-            bank_account_reference: payout.bank_account_reference,
-            payment_method: payout.payment_method,
-            payment_reference: payout.payment_reference,
-          }
-        : {}),
-    })
-    .eq("id", id);
-  if (error) throw error;
+export async function processRefund(id: string, note: string | null, payout: PayoutInput) {
+  await processRefundPayment({
+    data: {
+      id,
+      payment_date: payout.payment_date,
+      refund_amount: payout.refund_amount,
+      bank_name: payout.bank_name,
+      bank_account_reference: payout.bank_account_reference,
+      payment_method: payout.payment_method,
+      payment_reference: payout.payment_reference,
+      processed_note: payout.processed_note ?? note,
+    },
+  });
 }
 
 
