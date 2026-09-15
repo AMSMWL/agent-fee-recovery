@@ -98,14 +98,6 @@ async function assertStaff(context: AuthContext): Promise<void> {
   }
 }
 
-/** Columns hidden from view-only accounts. */
-const SENSITIVE_KEYS = [
-  "bank_name",
-  "bank_account_reference",
-  "payment_method",
-  "payment_reference",
-] as const;
-
 /**
  * Reads refund requests for any signed-in user. Staff get the full record;
  * view-only accounts get the same rows with bank and payment identifiers
@@ -126,11 +118,13 @@ export const listRefundRequests = createServerFn({ method: "POST" })
     const rows = data ?? [];
     if (staff) return rows;
 
-    return rows.map((row) => {
-      const safe = { ...row } as Record<string, unknown>;
-      for (const key of SENSITIVE_KEYS) safe[key] = null;
-      return safe;
-    });
+    return rows.map((row) => ({
+      ...row,
+      bank_name: null,
+      bank_account_reference: null,
+      payment_method: null,
+      payment_reference: null,
+    }));
   });
 
 /** Staff-only: FMLS credit entries. */
