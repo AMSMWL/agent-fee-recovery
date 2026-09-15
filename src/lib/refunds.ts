@@ -53,21 +53,13 @@ export const shortDate = (value: string | null | undefined) =>
   value ? new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
 
 export async function fetchRequests() {
-  const { data, error } = await supabase
-    .from("refund_requests")
-    .select("*")
-    .order("created_at", { ascending: false });
-  if (error) throw error;
-  return (data ?? []) as unknown as RefundRequest[];
+  const rows = await listRefundRequests();
+  return (rows ?? []) as unknown as RefundRequest[];
 }
 
 export async function fetchCredits() {
-  const { data, error } = await supabase
-    .from("fmls_credits")
-    .select("*")
-    .order("created_at", { ascending: false });
-  if (error) throw error;
-  return (data ?? []) as unknown as FmlsCredit[];
+  const rows = await listFmlsCredits();
+  return (rows ?? []) as unknown as FmlsCredit[];
 }
 
 export type PayoutInput = {
