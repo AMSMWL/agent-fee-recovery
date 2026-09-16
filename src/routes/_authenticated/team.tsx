@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 import { listTeam, setTeamRole } from "@/lib/team.functions";
 import { fetchMyRoles, isAdmin } from "@/lib/roles";
 import { shortDate } from "@/lib/refunds";
@@ -31,6 +32,11 @@ function TeamPage() {
     queryFn: fetchMyRoles,
   });
   const admin = isAdmin(myRoles);
+
+  const { data: myId } = useQuery({
+    queryKey: ["my_user_id"],
+    queryFn: async () => (await supabase.auth.getUser()).data.user?.id ?? null,
+  });
 
   const { data: members = [], isLoading } = useQuery({
     queryKey: ["team"],
@@ -94,6 +100,11 @@ function TeamPage() {
                   <td className="px-4 py-3 text-muted-foreground">{shortDate(m.created_at)}</td>
                   <td className="px-4 py-3">{m.roles.join(", ") || "none"}</td>
                   <td className="px-4 py-3">
+                    {m.id === myId ? (
+                      <span className="text-xs text-muted-foreground">
+                        Your own access — ask another admin to change it
+                      </span>
+                    ) : (
                     <div className="flex gap-2">
                       {ROLES.map((role) => (
                         <Button
@@ -107,6 +118,7 @@ function TeamPage() {
                         </Button>
                       ))}
                     </div>
+                    )}
                   </td>
                 </tr>
               ))

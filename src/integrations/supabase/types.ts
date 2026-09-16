@@ -212,13 +212,52 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
-      record_submission_attempt: {
+      list_refund_requests_safe: {
+        Args: never
+        Returns: {
+          agent_name: string
+          created_at: string
+          credit_amount: number
+          credit_entered_at: string
+          fmls_number: string
+          id: string
+          notes: string
+          payment_date: string
+          prior_waiver: boolean
+          prior_waiver_date: string
+          prior_waiver_details: string
+          processed_at: string
+          property_address: string
+          refund_amount: number
+          status: Database["public"]["Enums"]["refund_status"]
+          submission_date: string
+          transaction_type: Database["public"]["Enums"]["transaction_type"]
+        }[]
+      }
+      record_submission_attempt:
+        | {
+            Args: {
+              _client_key: string
+              _max_per_window: number
+              _window_minutes: number
+            }
+            Returns: boolean
+          }
+        | {
+            Args: {
+              _client_key: string
+              _max_global?: number
+              _max_per_window: number
+              _window_minutes: number
+            }
+            Returns: boolean
+          }
+      set_user_role: {
         Args: {
-          _client_key: string
-          _max_per_window: number
-          _window_minutes: number
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
-        Returns: boolean
+        Returns: undefined
       }
     }
     Enums: {
