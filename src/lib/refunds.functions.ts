@@ -83,7 +83,10 @@ export const submitRefundRequest = createServerFn({ method: "POST" })
   });
 
 type AuthContext = {
-  supabase: { rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown }> };
+  supabase: {
+    rpc: (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }>;
+    from: (table: string) => any;
+  };
   userId: string;
 };
 
@@ -99,42 +102,46 @@ async function assertStaff(context: AuthContext): Promise<void> {
 }
 
 /**
- * Reads refund requests for any signed-in user. Staff get the full record;
- * view-only accounts get the same rows with bank and payment identifiers
- * stripped server-side (they have no direct read access to the table).
+ * Reads refund requests for any signed-in user through the caller's own
+ * RLS-scoped client — never the service role. Staff read the table directly
+ * (their policies allow it); view-only accounts get a database function that
+ * returns an explicit allow-list of non-financial columns only.
  */
 export const listRefundRequests = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const staff = await isStaffCaller(context as unknown as AuthContext);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const ctx = context as unknown as AuthContext;
 
-    const { data, error } = await supabaseAdmin
-      .from("refund_requests")
-      .select("*")
-      .order("created_at", { ascending: false });
+    if (await isStaffCaller(ctx)) {
+      const { data, error } = await ctx.supabase
+        .from("refund_requests")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw new Error("Could not load refund requests");
+      return data ?? [];
+    }
+
+    const { data, error } = await ctx.supabase.rpc("list_refund_requests_safe");
     if (error) throw new Error("Could not load refund requests");
 
-    const rows = data ?? [];
-    if (staff) return rows;
-
-    return rows.map((row) => ({
+    return ((data as Record<string, unknown>[]) ?? []).map((row) => ({
       ...row,
       bank_name: null,
       bank_account_reference: null,
       payment_method: null,
       payment_reference: null,
+      processed_note: null,
     }));
   });
 
-/** Staff-only: FMLS credit entries. */
+/** Staff-only: FMLS credit entries, read through the caller's scoped client. */
 export const listFmlsCredits = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertStaff(context as unknown as AuthContext);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const ctx = context as unknown as AuthContext;
+    await assertStaff(ctx);
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await ctx.supabase
       .from("fmls_credits")
       .select("*")
       .order("created_at", { ascending: false });

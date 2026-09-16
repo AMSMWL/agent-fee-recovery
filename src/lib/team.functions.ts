@@ -44,13 +44,19 @@ export const setTeamRole = createServerFn({ method: "POST" })
     z.object({ userId: z.string().uuid(), role: roleSchema }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    await assertAdmin(context as unknown as AdminContext);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const ctx = context as unknown as AdminContext;
+    await assertAdmin(ctx);
 
-    await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId);
-    const { error } = await supabaseAdmin
-      .from("user_roles")
-      .insert({ user_id: data.userId, role: data.role });
+    if (data.userId === ctx.userId) {
+      throw new Error("You cannot change your own access level");
+    }
+
+    // Single database call: replaces the role atomically and re-checks admin
+    // rights and self-change server-side.
+    const { error } = await ctx.supabase.rpc("set_user_role", {
+      _user_id: data.userId,
+      _role: data.role,
+    });
     if (error) throw new Error("Could not update the role");
     return { ok: true };
   });
