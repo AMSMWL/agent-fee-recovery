@@ -7,7 +7,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const submissionSchema = z.object({
   agent_name: z.string().trim().min(1).max(120),
   transaction_type: z.enum(["personal_home_purchase", "personal_home_sale"]),
-  fmls_number: z.string().trim().min(1).max(60),
+  fmls_number: z.string().trim().min(1).max(60).regex(/^[A-Za-z0-9][A-Za-z0-9 ._/-]*$/),
   property_address: z.string().trim().max(240).nullable(),
   submission_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   prior_waiver: z.boolean(),
@@ -150,7 +150,7 @@ export const listFmlsCredits = createServerFn({ method: "POST" })
   });
 
 const creditSchema = z.object({
-  fmls_number: z.string().trim().min(1).max(60),
+  fmls_number: z.string().trim().min(1).max(60).regex(/^[A-Za-z0-9][A-Za-z0-9 ._/-]*$/),
   credit_amount: z.number().positive().max(1_000_000),
   invoice_month: z
     .string()
