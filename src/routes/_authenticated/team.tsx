@@ -32,6 +32,11 @@ function TeamPage() {
   });
   const admin = isAdmin(myRoles);
 
+  const { data: myId } = useQuery({
+    queryKey: ["my_user_id"],
+    queryFn: async () => (await supabase.auth.getUser()).data.user?.id ?? null,
+  });
+
   const { data: members = [], isLoading } = useQuery({
     queryKey: ["team"],
     queryFn: () => listTeam(),
